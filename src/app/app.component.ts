@@ -1,16 +1,31 @@
-import { Component } from '@angular/core';
+import {Component, computed, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {Prisma} from '@prisma/client';
 
-type AType = {
-    someSubtype?: {
-      abc: number;
+const someModelArgs = {
+  select: {
+    id: true,
+    someStuff: true,
+    child: {
+      select: {
+        id: true,
+        aInt: true,
+        aFloat: true,
+      }
     }
-};
+  }
+} satisfies Prisma.SomeModelDefaultArgs;
 
-const anObject: AType = {
-    someSubtype: {
-        abc: 123
-    }
+type SomeModelType = Prisma.SomeModelGetPayload<typeof someModelArgs>;
+
+const typeIsCorrectHere: SomeModelType = {
+  id: 'dawdawd',
+  someStuff: 'DWAdawd',
+  child: {
+    id: 'dawdaw232d',
+    aInt: 1,
+    aFloat: 0.0
+  }
 };
 
 @Component({
@@ -21,5 +36,23 @@ const anObject: AType = {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'signal-types-issue';
+
+  someModelSignal = signal<SomeModelType | null>(null);
+
+  aComputed = computed(() => {
+    const someModelSignal = this.someModelSignal();
+
+    if(!someModelSignal?.child) {
+      return null;
+    }
+
+    // Uncomment below and  ask IntelliSense to open up, the types won't show up, hovering works though
+    // someModelSignal.child.
+
+    const {aInt, aFloat, id} = someModelSignal.child;
+
+    return {
+      aInt, aFloat, id
+    };
+  });
 }

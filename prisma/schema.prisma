@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SomeModel {
+  id        String @id @default(uuid())
+  someStuff String
+
+  child SomeModelChild?
+}
+
+model SomeModelChild {
+  id       String  @id @default(uuid())
+  aBoolean Boolean @default(false)
+  aFloat   Float   @default(0.0)
+  aInt     Int     @default(0)
+  aString  String  @default("")
+
+  parentId String    @unique
+  parent   SomeModel @relation(fields: [parentId], references: [id])
+}
